@@ -27,6 +27,10 @@ const practicePlanSchema = new mongoose.Schema({
   dailyGoals: {
     type: [dailyGoalSchema],
     default: [],
+  },
+  lastGoalGenerationDate: {
+    type: Date,
+    default: Date.now,
   }
 }, {
   timestamps: true,

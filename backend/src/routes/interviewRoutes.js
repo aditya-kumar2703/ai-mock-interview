@@ -1,6 +1,6 @@
 const express = require('express');
 const { body } = require('express-validator');
-const { createInterview, getInterviews, getInterviewById, deleteInterview } = require('../controllers/interviewController');
+const { createInterview, getInterviews, getInterviewById, deleteInterview, finishInterview } = require('../controllers/interviewController');
 const { protect } = require('../middleware/authMiddleware');
 const { validate } = require('../middleware/validationMiddleware');
 
@@ -24,5 +24,8 @@ router.route('/create')
 router.route('/:id')
   .get(protect, getInterviewById)
   .delete(protect, deleteInterview);
+
+router.route('/:id/finish')
+  .post(protect, finishInterview);
 
 module.exports = router;

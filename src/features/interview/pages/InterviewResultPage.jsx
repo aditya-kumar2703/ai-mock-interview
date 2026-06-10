@@ -3,8 +3,10 @@ import { useLocation, Link } from 'react-router-dom';
 import PageHeader from '../../../components/shared/PageHeader';
 import { Button, Card, Badge } from '../../../components/ui';
 import ScoreSummary from '../components/ScoreSummary';
+import BehaviorReport from '../components/BehaviorReport';
+import BehaviorCharts from '../components/BehaviorCharts';
 import EmptyState from '../../../components/shared/EmptyState';
-import { RotateCcw, Download, Trophy, CheckCircle, AlertTriangle } from 'lucide-react';
+import { RotateCcw, Download, Trophy, CheckCircle, AlertTriangle, Mic, Camera } from 'lucide-react';
 import { formatDuration } from '../../../lib/utils';
 
 /**
@@ -12,9 +14,10 @@ import { formatDuration } from '../../../lib/utils';
  */
 export default function InterviewResultPage() {
   const location = useLocation();
-  const { timeElapsed = 0, interviewId } = location.state || {};
+  const { timeElapsed = 0, interviewId, hasBehaviorReport } = location.state || {};
   
   const [feedbacks, setFeedbacks] = useState([]);
+  const [behaviorData, setBehaviorData] = useState(null);
   const [isLoading, setIsLoading] = useState(true);
 
   useEffect(() => {
@@ -39,6 +42,13 @@ export default function InterviewResultPage() {
           question: session.question,
           userAnswer: session.userAnswer,
           score: session.score,
+          technicalScore: session.technicalScore || 0,
+          communicationScore: session.communicationScore || 0,
+          clarityScore: session.clarityScore || 0,
+          confidenceScore: session.confidenceScore || 0,
+          fillerWordCount: session.fillerWordCount || 0,
+          speakingTime: session.speakingTime || 0,
+          wordsPerMinute: session.wordsPerMinute || 0,
           status: session.score >= 80 ? 'success' : session.score >= 60 ? 'warning' : 'danger',
           comment: session.feedback
         }));
@@ -50,15 +60,42 @@ export default function InterviewResultPage() {
         setIsLoading(false);
       }
     };
+
+    const fetchBehaviorReport = async () => {
+      if (!interviewId) return;
+      try {
+        const token = localStorage.getItem('amie_token');
+        const res = await fetch(`/api/webcam/report/${interviewId}`, {
+          headers: { 'Authorization': `Bearer ${token}` },
+        });
+        const data = await res.json();
+        if (data) setBehaviorData(data);
+      } catch (err) {
+        console.error('Failed to fetch behavior report:', err);
+      }
+    };
     
     fetchResults();
+    fetchBehaviorReport();
   }, [interviewId]);
 
   const hasData = feedbacks.length > 0;
   
-  const overallScore = hasData 
-    ? Math.round(feedbacks.reduce((acc, curr) => acc + curr.score, 0) / feedbacks.length)
-    : 0;
+  const getAverage = (key) => hasData ? Math.round(feedbacks.reduce((acc, curr) => acc + curr[key], 0) / feedbacks.length) : 0;
+  
+  const overallScore = getAverage('score');
+  const avgTech = getAverage('technicalScore');
+  const avgComm = getAverage('communicationScore');
+  const avgClarity = getAverage('clarityScore');
+  const avgConfidence = getAverage('confidenceScore');
+  
+  const avgBehavior = behaviorData ? Math.round(
+    (behaviorData.confidenceScore + behaviorData.eyeContactScore + behaviorData.bodyLanguageScore + behaviorData.engagementScore + behaviorData.smileScore) / 5
+  ) : null;
+  
+  const totalSpeakingTime = hasData ? feedbacks.reduce((acc, curr) => acc + curr.speakingTime, 0) : 0;
+  const totalFillerWords = hasData ? feedbacks.reduce((acc, curr) => acc + curr.fillerWordCount, 0) : 0;
+  const avgWPM = getAverage('wordsPerMinute');
 
   return (
     <div className="space-y-6 animate-fade-in max-w-5xl mx-auto pb-10">
@@ -131,16 +168,54 @@ export default function InterviewResultPage() {
               </div>
             )}
           </Card>
+
+          {/* Voice Analytics Section */}
+          {hasData && totalSpeakingTime > 0 && (
+            <Card className="mt-6">
+              <h3 className="text-lg font-semibold text-surface-100 mb-6 flex items-center gap-2">
+                <Mic size={20} className="text-accent-500" />
+                Voice Communication Analysis
+              </h3>
+              
+              <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-6">
+                <div className="bg-surface-900 rounded-xl p-4 border border-surface-800 text-center">
+                  <p className="text-xs text-surface-400 mb-1">Total Time</p>
+                  <p className="text-xl font-bold text-surface-100">{formatDuration(totalSpeakingTime)}</p>
+                </div>
+                <div className="bg-surface-900 rounded-xl p-4 border border-surface-800 text-center">
+                  <p className="text-xs text-surface-400 mb-1">Speaking Speed</p>
+                  <p className="text-xl font-bold text-surface-100">{avgWPM} <span className="text-sm font-normal text-surface-400">WPM</span></p>
+                </div>
+                <div className="bg-surface-900 rounded-xl p-4 border border-surface-800 text-center">
+                  <p className="text-xs text-surface-400 mb-1">Filler Words</p>
+                  <p className="text-xl font-bold text-danger-500">{totalFillerWords}</p>
+                </div>
+                <div className="bg-surface-900 rounded-xl p-4 border border-surface-800 text-center">
+                  <p className="text-xs text-surface-400 mb-1">Clarity Score</p>
+                  <p className="text-xl font-bold text-success-500">{avgClarity}/100</p>
+                </div>
+              </div>
+            </Card>
+          )}
+
+          {/* Behavioral Analysis Section */}
+          {behaviorData && (
+            <>
+              <BehaviorReport report={behaviorData} />
+              <BehaviorCharts snapshots={behaviorData.snapshots} />
+            </>
+          )}
         </div>
 
         {/* Right Column: Score Summary */}
         <div>
           <ScoreSummary 
             overallScore={overallScore}
-            technicalScore={hasData ? overallScore + 5 : 0}
-            communicationScore={hasData ? overallScore - 2 : 0}
+            technicalScore={avgTech || (hasData ? overallScore + 5 : 0)}
+            communicationScore={avgComm || (hasData ? overallScore - 2 : 0)}
             problemSolvingScore={hasData ? overallScore + 3 : 0}
-            confidenceScore={hasData ? overallScore - 5 : 0}
+            confidenceScore={avgConfidence || (hasData ? overallScore - 5 : 0)}
+            behavioralScore={avgBehavior}
             className="sticky top-24"
           />
         </div>

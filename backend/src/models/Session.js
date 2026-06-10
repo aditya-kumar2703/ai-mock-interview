@@ -23,6 +23,49 @@ const sessionSchema = new mongoose.Schema(
       type: Number,
       required: true,
     },
+    strengths: {
+      type: [String],
+      default: [],
+    },
+    weaknesses: {
+      type: [String],
+      default: [],
+    },
+    suggestions: {
+      type: [String],
+      default: [],
+    },
+    userNotes: {
+      type: String,
+      default: '',
+    },
+    transcript: {
+      type: String,
+    },
+    audioUrl: {
+      type: String,
+    },
+    technicalScore: {
+      type: Number,
+    },
+    communicationScore: {
+      type: Number,
+    },
+    clarityScore: {
+      type: Number,
+    },
+    confidenceScore: {
+      type: Number,
+    },
+    fillerWordCount: {
+      type: Number,
+    },
+    speakingTime: {
+      type: Number, // in seconds
+    },
+    wordsPerMinute: {
+      type: Number,
+    },
     timestamp: {
       type: Date,
       default: Date.now,

@@ -20,6 +20,8 @@ import InterviewSessionPage from './features/interview/pages/InterviewSessionPag
 import InterviewResultPage from './features/interview/pages/InterviewResultPage';
 import PracticePlanPage from './features/practice/pages/PracticePlanPage';
 import AnalyticsPage from './features/analytics/pages/AnalyticsPage';
+import InterviewHistoryPage from './features/interview/pages/InterviewHistoryPage';
+import InterviewReplayPage from './features/interview/pages/InterviewReplayPage';
 
 export default function App() {
   return (
@@ -44,6 +46,8 @@ export default function App() {
                 <Route path="/interview/setup" element={<InterviewSetupPage />} />
                 <Route path="/interview/session" element={<InterviewSessionPage />} />
                 <Route path="/interview/result" element={<InterviewResultPage />} />
+                <Route path="/interviews/history" element={<InterviewHistoryPage />} />
+                <Route path="/interviews/:id/replay" element={<InterviewReplayPage />} />
                 <Route path="/practice-plan" element={<PracticePlanPage />} />
                 <Route path="/analytics" element={<AnalyticsPage />} />
               </Route>

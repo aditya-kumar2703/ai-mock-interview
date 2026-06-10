@@ -10,15 +10,21 @@
     "preview": "vite preview"
   },
   "dependencies": {
+    "@mediapipe/camera_utils": "^0.3.1675466862",
+    "@mediapipe/drawing_utils": "^0.3.1675466124",
+    "@mediapipe/face_mesh": "^0.4.1633559619",
+    "@mediapipe/pose": "^0.5.1675469404",
     "@tailwindcss/vite": "^4.3.0",
     "axios": "^1.17.0",
     "chart.js": "^4.5.1",
+    "date-fns": "^4.4.0",
     "lucide-react": "^1.17.0",
     "react": "^19.2.6",
     "react-chartjs-2": "^5.3.1",
     "react-dom": "^19.2.6",
     "react-hook-form": "^7.78.0",
     "react-router-dom": "^7.17.0",
+    "recharts": "^3.8.1",
     "tailwindcss": "^4.3.0"
   },
   "devDependencies": {

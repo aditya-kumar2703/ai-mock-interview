@@ -1,6 +1,6 @@
 const PracticePlan = require('../models/PracticePlan');
 const Resume = require('../models/Resume');
-const { generatePracticePlan } = require('../services/aiService');
+const { generatePracticePlan, generateDailyGoals } = require('../services/aiService');
 
 // @desc    Get or generate the practice plan for the user
 // @route   GET /api/practice/plan
@@ -23,7 +23,27 @@ const getPracticePlan = async (req, res, next) => {
         userId: req.user._id,
         weeks: aiPlan.weeks,
         dailyGoals: aiPlan.dailyGoals,
+        lastGoalGenerationDate: Date.now(),
       });
+    } else {
+      // Check if goals need to be regenerated (if last generation was before today)
+      const today = new Date();
+      today.setHours(0, 0, 0, 0);
+
+      const lastGen = new Date(plan.lastGoalGenerationDate || plan.createdAt);
+      lastGen.setHours(0, 0, 0, 0);
+
+      if (lastGen.getTime() < today.getTime()) {
+        const latestResume = await Resume.findOne({ userId: req.user._id }).sort({ createdAt: -1 });
+        const skills = latestResume ? latestResume.skills : [];
+        
+        // Generate ONLY new daily goals to save time/tokens
+        const newDailyGoals = await generateDailyGoals(skills);
+        
+        plan.dailyGoals = newDailyGoals;
+        plan.lastGoalGenerationDate = Date.now();
+        await plan.save();
+      }
     }
 
     res.status(200).json(plan);
@@ -78,6 +98,7 @@ const generateNewPlan = async (req, res, next) => {
         $set: {
           weeks: aiPlan.weeks,
           dailyGoals: aiPlan.dailyGoals,
+          lastGoalGenerationDate: Date.now()
         }
       },
       { new: true, upsert: true }

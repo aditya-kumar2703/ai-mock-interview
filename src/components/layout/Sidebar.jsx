@@ -14,6 +14,7 @@ import {
   ChevronLeft,
   ChevronRight,
   X,
+  History,
 } from 'lucide-react';
 
 const iconMap = {
@@ -23,12 +24,14 @@ const iconMap = {
   Target,
   BarChart3,
   User,
+  History,
 };
 
 const navItems = [
   { label: 'Dashboard', path: '/dashboard', icon: 'LayoutDashboard' },
   { label: 'Resume Analysis', path: '/resume-analysis', icon: 'FileText' },
   { label: 'Interview', path: '/interview/setup', icon: 'Mic' },
+  { label: 'History', path: '/interviews/history', icon: 'History' },
   { label: 'Practice Plan', path: '/practice-plan', icon: 'Target' },
   { label: 'Analytics', path: '/analytics', icon: 'BarChart3' },
   { label: 'Profile', path: '/profile', icon: 'User' },
@@ -45,7 +48,10 @@ export default function Sidebar() {
 
   const isActiveRoute = (path) => {
     if (path === '/interview/setup') {
-      return location.pathname.startsWith('/interview');
+      return location.pathname === '/interview/setup' || location.pathname === '/interview/session' || location.pathname === '/interview/result';
+    }
+    if (path === '/interviews/history') {
+      return location.pathname.startsWith('/interviews');
     }
     return location.pathname === path;
   };

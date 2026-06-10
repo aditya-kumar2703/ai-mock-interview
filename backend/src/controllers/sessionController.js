@@ -30,6 +30,9 @@ const submitAnswer = async (req, res, next) => {
       userAnswer,
       feedback: evaluation.feedback,
       score: evaluation.score,
+      strengths: evaluation.strengths || [],
+      weaknesses: evaluation.weaknesses || [],
+      suggestions: evaluation.suggestions || [],
     });
 
     res.status(201).json(session);

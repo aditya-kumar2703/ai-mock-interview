@@ -1,4 +1,4 @@
-import { Outlet } from 'react-router-dom';
+import { Outlet, useLocation } from 'react-router-dom';
 import { cn } from '../../lib/utils';
 import { useSidebar } from '../../hooks/useSidebar';
 import { useMediaQuery } from '../../hooks/useMediaQuery';
@@ -11,6 +11,7 @@ import MobileNav from './MobileNav';
  * Used for all authenticated routes.
  */
 export default function DashboardLayout() {
+  const location = useLocation();
   const { isCollapsed } = useSidebar();
   const isDesktop = useMediaQuery('(min-width: 1024px)');
 
@@ -30,7 +31,12 @@ export default function DashboardLayout() {
         <Topbar />
 
         {/* Page content */}
-        <main className="max-w-[1440px] mx-auto p-6 lg:p-10 pb-24 lg:pb-12 min-h-[calc(100vh-80px)]">
+        <main className={cn(
+          "max-w-[1440px] mx-auto min-h-[calc(100vh-80px)]",
+          location.pathname === '/interview/session' 
+            ? "p-0" 
+            : "p-6 lg:p-10 pb-24 lg:pb-12"
+        )}>
           <Outlet />
         </main>
       </div>

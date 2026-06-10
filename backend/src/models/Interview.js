@@ -29,6 +29,24 @@ const interviewSchema = new mongoose.Schema(
       enum: ['ongoing', 'completed'],
       default: 'ongoing',
     },
+    overallScore: {
+      type: Number,
+      default: 0,
+    },
+    duration: {
+      type: Number, // in seconds
+      default: 0,
+    },
+    totalQuestions: {
+      type: Number,
+      default: 0,
+    },
+    strongestArea: {
+      type: String,
+    },
+    weakestArea: {
+      type: String,
+    },
   },
   {
     timestamps: true,
